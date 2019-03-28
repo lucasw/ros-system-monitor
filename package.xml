@@ -20,6 +20,5 @@
   <run_depend>diagnostic_msgs</run_depend>
   <run_depend>sysstat</run_depend>
   <run_depend>hddtemp</run_depend>
-  <run_depend>ntpdate</run_depend>
   <run_depend>ifstat</run_depend>
 </package>
