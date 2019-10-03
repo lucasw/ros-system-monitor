@@ -82,7 +82,7 @@ class ChronyMonitor(object):
         if res == 0:
             rospy.logdebug(proc_output)
             reference_host = re.search("Reference ID    : (.*)", proc_output).group(1)
-            measured_offset = float(re.search("System time     : (.*) seconds slow of NTP time", proc_output).group(1))
+            measured_offset = float(re.search("System time     : (.*) seconds (.*) of NTP time", proc_output).group(1))
             self.stat.level = DiagnosticStatus.OK
             self.stat.message = "OK"
             self.stat.values = [KeyValue("Reference host", reference_host),
@@ -109,7 +109,6 @@ class ChronyMonitor(object):
         msg = DiagnosticArray()
         msg.header.stamp = rospy.get_rostime()
         msg.status = [self.stat]
-        rospy.loginfo(msg)
         self.pub.publish(msg)
 
 if __name__ == "__main__":
