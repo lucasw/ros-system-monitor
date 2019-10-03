@@ -11,7 +11,7 @@
       output="$(arg output)" respawn="true"/>
     <node name="mem_monitor" pkg="ros_system_monitor" type="mem_monitor.py"
       output="$(arg output)" respawn="true"/>
-    <node name="ntp_monitor" pkg="ros_system_monitor" type="ntp_monitor.py"
+    <node name="chrony_monitor" pkg="ros_system_monitor" type="chrony_monitor.py"
       output="$(arg output)" respawn="true"/>
     <node name="net_monitor" pkg="ros_system_monitor" type="net_monitor.py"
       output="$(arg output)" respawn="true"/>

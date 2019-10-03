@@ -16,10 +16,9 @@ hdd_monitor:
 mem_monitor:
   mem_level_warn: 0.95
   mem_level_error: 0.99
-ntp_monitor:
-  reference_host: ntp.ubuntu.com
-  offset_tolerance: 500.0
-  error_offset_tolerance: 5000000.0
+chrony_monitor:
+  offset_tolerance: 0.0005
+  error_offset_tolerance: 0.5000000
 net_monitor:
   net_level_warn: 0.95
   net_capacity: 128.0
