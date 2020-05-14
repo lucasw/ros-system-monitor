@@ -157,8 +157,12 @@ class NetMonitor():
           ifacematch = re.match('eth[0-9]+', ifaces[i])
           if ifacematch and (cmd_out == 'down' or cmd_out == 'dormant'):
             level = DiagnosticStatus.ERROR
-        values.append(KeyValue(key = 'Input Traffic',
-          value = str(float(kb_in[i]) / 1024) + " (MB/s)"))
+        try:
+            value = str(float(kb_in[i]) / 1024) + " (MB/s)"
+            values.append(KeyValue(key = 'Input Traffic', value=value))
+        except Exception as ex:
+            # TODO(lucasw) probably there is an 'n/a', check for that exact string in the future
+            rospy.logwarn("'{}' {}".format(kb_in[i], ex))
         values.append(KeyValue(key = 'Output Traffic',
           value = str(float(kb_out[i]) / 1024) + " (MB/s)"))
         net_usage_in = float(kb_in[i]) / 1024 / self._net_capacity
