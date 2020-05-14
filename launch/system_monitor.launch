@@ -2,7 +2,7 @@
 <launch>
   <arg name="machine_name" default="$(optenv HOSTNAME localhost)"/>
   <arg name="config_file" default="$(find ros_system_monitor)/config/system_monitor.yaml"/>
-  <arg name="output" default="log"/>
+  <arg name="output" default="screen"/>
 
   <group ns="system_monitor/$(arg machine_name)">
     <node name="cpu_monitor" pkg="ros_system_monitor" type="cpu_monitor.py"
