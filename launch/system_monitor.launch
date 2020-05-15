@@ -3,18 +3,19 @@
   <arg name="machine_name" default="$(optenv HOSTNAME localhost)"/>
   <arg name="config_file" default="$(find ros_system_monitor)/config/system_monitor.yaml"/>
   <arg name="output" default="screen"/>
+  <arg name="respawn" default="false"/>
 
   <group ns="system_monitor/$(arg machine_name)">
     <node name="cpu_monitor" pkg="ros_system_monitor" type="cpu_monitor.py"
-      output="$(arg output)" respawn="true"/>
+      output="$(arg output)" respawn="$(arg respawn)"/>
     <node name="hdd_monitor" pkg="ros_system_monitor" type="hdd_monitor.py"
-      output="$(arg output)" respawn="true"/>
+      output="$(arg output)" respawn="$(arg respawn)"/>
     <node name="mem_monitor" pkg="ros_system_monitor" type="mem_monitor.py"
-      output="$(arg output)" respawn="true"/>
+      output="$(arg output)" respawn="$(arg respawn)"/>
     <node name="chrony_monitor" pkg="ros_system_monitor" type="chrony_monitor.py"
-      output="$(arg output)" respawn="true"/>
+      output="$(arg output)" respawn="$(arg respawn)"/>
     <node name="net_monitor" pkg="ros_system_monitor" type="net_monitor.py"
-      output="$(arg output)" respawn="true"/>
+      output="$(arg output)" respawn="$(arg respawn)"/>
   </group>
 
   <rosparam command="load" file="$(arg config_file)"
