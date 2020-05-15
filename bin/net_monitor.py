@@ -149,6 +149,7 @@ class NetMonitor():
         kb_out.append(data[i + 1])
       level = DiagnosticStatus.OK
       for i in range(0, len(ifaces)):
+        # TODO(lucasw) clean up all of this
         values.append(KeyValue(key = 'Interface Name',
           value = ifaces[i]))
         (retcode, cmd_out) = get_sys_net(ifaces[i], 'operstate')
@@ -157,12 +158,8 @@ class NetMonitor():
           ifacematch = re.match('eth[0-9]+', ifaces[i])
           if ifacematch and (cmd_out == 'down' or cmd_out == 'dormant'):
             level = DiagnosticStatus.ERROR
-        try:
-            value = str(float(kb_in[i]) / 1024) + " (MB/s)"
-            values.append(KeyValue(key = 'Input Traffic', value=value))
-        except Exception as ex:
-            # TODO(lucasw) probably there is an 'n/a', check for that exact string in the future
-            rospy.logwarn("'{}' {}".format(kb_in[i], ex))
+        value = str(float(kb_in[i]) / 1024) + " (MB/s)"
+        values.append(KeyValue(key = 'Input Traffic', value=value))
         values.append(KeyValue(key = 'Output Traffic',
           value = str(float(kb_out[i]) / 1024) + " (MB/s)"))
         net_usage_in = float(kb_in[i]) / 1024 / self._net_capacity
@@ -190,7 +187,7 @@ class NetMonitor():
         (retcode, cmd_out) = get_sys_net_stat(ifaces[i], 'tx_errors')
         if retcode == 0:
           values.append(KeyValue(key = 'Tx Errors', value = cmd_out))
-    except Exception, e:
+    except (ValueError, Exception) as e:
       rospy.logerr(traceback.format_exc())
       msg = 'Network Usage Check Error'
       values.append(KeyValue(key = msg, value = str(e)))
