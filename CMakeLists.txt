@@ -1,15 +1,16 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(ros_system_monitor)
-
+cmake_minimum_required(VERSION 3.0)
+project(ros_system_monitor VERSION 0.1.0)
 
 find_package(catkin REQUIRED COMPONENTS
+  roslint
   rospy
   std_msgs
   diagnostic_msgs
 )
 
+# TODO(lucasw) make this pass
+# roslint_python()
 catkin_package()
-
 
 install(DIRECTORY
   config
