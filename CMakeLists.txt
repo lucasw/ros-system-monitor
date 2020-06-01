@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(ros_system_monitor VERSION 0.1.0)
 
 find_package(catkin REQUIRED COMPONENTS
-  roslint
+  # roslint
   rospy
   std_msgs
   diagnostic_msgs
