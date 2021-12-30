@@ -16,7 +16,11 @@ jobs:
       PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/dist-packages
       ROS_DISTRO: melodic
     steps:
-      - uses: actions/checkout@v1
+      - name: get ros_system_monitor
+        uses: actions/checkout@v2
+        with:
+          path: catkin_ws/src/ros_system_monitor
+
       - name: Install ROS
         run: |
             sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
@@ -42,31 +46,22 @@ jobs:
       - name: Install ROS additional packages with rosdep
         run: |
             source /opt/ros/$ROS_DISTRO/setup.bash
-            cd ~/catkin_ws
+            cd catkin_ws
             rosdep install --from-paths src --ignore-src -r -s  # do a dry-run first
             rosdep install --from-paths src --ignore-src -r -y
 
       - name: build
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
-          mkdir -p ~/catkin_ws/src
-          cd ~/catkin_ws
-          catkin build
+          cd catkin_ws
+          catkin build --no-status
           source devel/setup.bash
-          # echo "::warning $CI_SOURCE_PATH"
-          # echo "::warning `ls -l`"
-          cd src
-          ln -s ~/work  # $CI_SOURCE_PATH
-          cd ..
-          catkin build
+
       - name: lint
-        run: |
-          cd ~/catkin_ws
-          echo "need to make roslint pass"
-      - name: roslint
         run: |
           cd catkin_ws
           source devel/setup.bash
+          echo "need to make roslint pass"
+          # catkin build ros_system_monitor --no-status --no-deps --catkin-make-args roslint
           LINT_CFG="-W2 --error unsorted_list --ignore uninstalled_script --error launch_depend --error description_meaningless"
           catkin_lint --pkg ros_system_monitor $LINT_CFG
-          # catkin build ros_system_monitor --no-deps --catkin-make-args roslint
