@@ -151,8 +151,8 @@ class CPUMonitor():
                     self._temps_timer.cancel()
                 
             self.check_temps()
-        except Exception, e:
-            rospy.logerr('Unable to restart temp thread. Error: %s' % traceback.format_exc())
+        except Exception as e:
+            rospy.logerr(f'Unable to restart temp thread. Error: {e} {traceback.format_exc()}')
             
 
     ## Must have the lock to cancel everything
@@ -180,6 +180,7 @@ class CPUMonitor():
             p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE, shell = True)
             stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
             retcode = p.returncode
 
             if retcode != 0:
@@ -190,7 +191,7 @@ class CPUMonitor():
                 return diag_vals, diag_msgs, diag_level
 
             tmp = stdout.strip()
-            if unicode(tmp).isnumeric():
+            if tmp.isnumeric():
                 temp = float(tmp) / 1000
                 diag_vals.append(KeyValue(key = 'Core %d Temperature' % index, value = str(temp)+" DegC"))
 
@@ -217,6 +218,7 @@ class CPUMonitor():
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE, shell = True)
             stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
             retcode = p.returncode
 
             if retcode != 0:
@@ -232,10 +234,11 @@ class CPUMonitor():
                 if len(words) < 2:
                     continue
 
-                speed = words[1].strip().split('.')[0] # Conversion to float doesn't work with decimal
-                vals.append(KeyValue(key = 'Core %d Clock Speed' % index, value = speed+" MHz"))
+                speed = words[1].strip().split('.')[0]  # Conversion to float doesn't work with decimal
+                vals.append(KeyValue(key = 'Core %d Clock Speed' % index, value=speed + " MHz"))
 
-        except Exception, e:
+        except Exception as e:
+            rospy.logerr(e)
             rospy.logerr(traceback.format_exc())
             lvl = DiagnosticStatus.ERROR
             msgs.append('Exception')
@@ -262,7 +265,7 @@ class CPUMonitor():
                 vals.append(KeyValue(key = 'uptime Failed', value = stderr))
                 return DiagnosticStatus.ERROR, vals
 
-            upvals = stdout.split()
+            upvals = stdout.decode('utf-8').split()
             load1 = float(upvals[-3].rstrip(',').replace(',', '.', 1))/self._num_cores
             load5 = float(upvals[-2].rstrip(',').replace(',', '.', 1))/self._num_cores
             load15 = float(upvals[-1].replace(',', '.', 1))/self._num_cores
@@ -276,7 +279,8 @@ class CPUMonitor():
             vals.append(KeyValue(key = 'Load Average (5min)', value = str(load5*1e2)+"%"))
             vals.append(KeyValue(key = 'Load Average (15min)', value = str(load15*1e2)+"%"))
 
-        except Exception, e:
+        except Exception as e:
+            rospy.logerr(e)
             rospy.logerr(traceback.format_exc())
             level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'Load Average Status', value = traceback.format_exc()))
@@ -309,13 +313,13 @@ class CPUMonitor():
 
             # Check which column '%idle' is, #4539
             # mpstat output changed between 8.06 and 8.1
-            rows = stdout.split('\n')
+            rows = stdout.decode('utf-8').split('\n')
             col_names = rows[2].split()
             idle_col = -1 if (len(col_names) > 2 and col_names[-1] == '%idle') else -2
 
             num_cores = 0
             cores_loaded = 0
-            for index, row in enumerate(stdout.split('\n')):
+            for index, row in enumerate(stdout.decode('utf-8').split('\n')):
 
                 if index < 3:
                     continue
@@ -375,7 +379,7 @@ class CPUMonitor():
                     self._has_error_core_count = True
                 return DiagnosticStatus.ERROR, 'Incorrect number of CPU cores', vals
 
-        except Exception, e:
+        except Exception as e:
             mp_level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'mpstat Exception', value = str(e)))
 
@@ -396,7 +400,7 @@ class CPUMonitor():
                 rospy.logerr('Error find core temp locations: %s' % stderr)
                 return []
 
-            for ln in stdout.split('\n'):
+            for ln in stdout.decode('utf-8').split('\n'):
                 temp_vals.append(ln.strip())
 
             return temp_vals
@@ -540,8 +544,8 @@ if __name__ == '__main__':
             cpu_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
-        traceback.print_exc()
+    except Exception as e:
+        rospy.logerr(e)
         rospy.logerr(traceback.format_exc())
 
     cpu_node.cancel_timers()

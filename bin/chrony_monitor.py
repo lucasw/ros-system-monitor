@@ -73,16 +73,16 @@ class ChronyMonitor(object):
             proc = Popen(["chronyc", "tracking"], stdout=PIPE, stdin=PIPE, stderr=PIPE)
             res = proc.wait()
             (proc_output, error_output) = proc.communicate()
-        except OSError, (errno, msg):
-            if errno == 4:
+        except OSError as e:
+            if e.errno == 4:
                 return
             else:
                 raise
 
         if res == 0:
             rospy.logdebug(proc_output)
-            reference_host = re.search("Reference ID    : (.*)", proc_output).group(1)
-            measured_offset = float(re.search("System time     : (.*) seconds (.*) of NTP time", proc_output).group(1))
+            reference_host = re.search(b"Reference ID    : (.*)", proc_output).group(1).decode('utf-8')
+            measured_offset = float(re.search(b"System time     : (.*) seconds (.*) of NTP time", proc_output).group(1))
             self.stat.level = DiagnosticStatus.OK
             self.stat.message = "OK"
             self.stat.values = [KeyValue("Reference host", reference_host),

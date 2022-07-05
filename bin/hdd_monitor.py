@@ -195,10 +195,10 @@ class hdd_monitor():
         for index in range(0, len(drives)):
             temp = temps[index]
             
-            if not unicode(temp).isnumeric() and drives[index] not in REMOVABLE:
+            if not temp.isnumeric() and drives[index] not in REMOVABLE:
                 temp_level = DiagnosticStatus.ERROR
                 temp_ok = False
-            elif not unicode(temp).isnumeric() and drives[index] in REMOVABLE:
+            elif not temp.isnumeric() and drives[index] in REMOVABLE:
                 temp_level = DiagnosticStatus.OK
                 temp = "Removed"
             else:
@@ -255,14 +255,15 @@ class hdd_monitor():
 
             if (retcode == 0 or retcode == 1):
                 diag_vals.append(KeyValue(key = 'Disk Space Reading', value = 'OK'))
-                rows = stdout.split('\n')
+                rows = stdout.split(b'\n')
                 del rows[0]
                 row_count = 0
                 
                 for row in rows:
+                    row = row.decode('utf-8')
                     if len(row.split()) < 2:
                         continue
-                    if unicode(row.split()[0]) == "none":
+                    if row.split()[0] == b"none":
                         continue
 
                     row_count += 1
@@ -361,7 +362,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('hdd_monitor_%s' % hostname)
     except rospy.exceptions.ROSInitException:
-        print 'HDD monitor is unable to initialize node. Master may not be running.'
+        print('HDD monitor is unable to initialize node. Master may not be running.')
         sys.exit(0)
         
     hdd_monitor = hdd_monitor(hostname, options.diag_hostname)
@@ -373,7 +374,8 @@ if __name__ == '__main__':
             hdd_monitor.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
+        rospy.logerr(e)
         traceback.print_exc()
 
     hdd_monitor.cancel_timers()

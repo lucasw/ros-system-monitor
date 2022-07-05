@@ -260,8 +260,9 @@ if __name__ == '__main__':
       net_node.publish_stats()
   except KeyboardInterrupt:
     pass
-  except Exception, e:
+  except Exception as e:
     traceback.print_exc()
+    rospy.logerr(e)
     rospy.logerr(traceback.format_exc())
   net_node.cancel_timers()
   sys.exit(0)

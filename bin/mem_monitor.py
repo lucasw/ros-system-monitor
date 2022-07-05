@@ -132,15 +132,19 @@ class MemMonitor():
                 values.append(KeyValue(key = "\"free -tm\" Call Error", value = str(retcode)))
                 return DiagnosticStatus.ERROR, values
 
-            rows = stdout.split('\n')
+            rows = stdout.split(b'\n')
+            rows = [ln.decode('utf-8') for ln in rows]
+
             data = rows[1].split()
             total_mem_physical = data[1]
             used_mem_physical = data[2]
             free_mem_physical = data[3]
+
             data = rows[2].split()
             total_mem_swap = data[1]
             used_mem_swap = data[2]
             free_mem_swap = data[3]
+
             data = rows[3].split()
             total_mem = data[1]
             used_mem = data[2]
@@ -167,7 +171,7 @@ class MemMonitor():
             values.append(KeyValue(key = 'Free Memory', value = free_mem+"M"))
 
             msg = mem_dict[level]
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             msg = 'Memory Usage Check Error'
             values.append(KeyValue(key = msg, value = str(e)))
@@ -253,8 +257,8 @@ if __name__ == '__main__':
             mem_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
-        traceback.print_exc()
+    except Exception as e:
+        rospy.logerr(e)
         rospy.logerr(traceback.format_exc())
 
     mem_node.cancel_timers()
